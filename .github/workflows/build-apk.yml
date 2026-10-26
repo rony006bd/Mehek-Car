@@ -1,4 +1,4 @@
-name: Build Mehek Car APK
+name: Build TararBari BT Controler APK
 
 on:
   workflow_dispatch:
@@ -24,6 +24,9 @@ jobs:
       - name: Apply new branded interface
         run: cp ModernMainActivity.java MehekCarAndroid/app/src/main/java/com/mehekcar/rc/MainActivity.java
 
+      - name: Set Android app display name
+        run: sed -i 's/android:label="Mehek Car"/android:label="TararBari BT Controler"/' MehekCarAndroid/app/src/main/AndroidManifest.xml
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -47,6 +50,6 @@ jobs:
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: Mehek-Car-debug-APK
+          name: TararBari-BT-Controler-APK
           path: MehekCarAndroid/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
