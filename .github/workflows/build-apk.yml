@@ -62,3 +62,55 @@ jobs:
           name: Fixed-Multi-Theme-Bluetooth-Apps
           path: output/*.apk
           if-no-files-found: error
+
+      - name: Package complete editable source projects
+        run: |
+          set -e
+          mkdir -p source-archive
+          cp -a MehekCarAndroid source-archive/TararBari_BT_Car
+          cp -a MehekCarAndroid source-archive/Mehek_BT_Car
+          sed -i 's/android:label="TararBari BT Car"/android:label="Mehek BT Car"/' source-archive/Mehek_BT_Car/app/src/main/AndroidManifest.xml
+          sed -i "s/applicationId 'com.tararbari.allthemes'/applicationId 'com.mehekcar.allthemes'/" source-archive/Mehek_BT_Car/app/build.gradle
+          sed -i 's/label("TararBari BT Car",17/label("Mehek BT Car",17/' source-archive/Mehek_BT_Car/app/src/main/java/com/mehekcar/rc/MainActivity.java
+          rm -rf source-archive/*/.gradle source-archive/*/build source-archive/*/app/build source-archive/*/.github
+          cat > source-archive/README.txt <<'TXT'
+          TARARBARI / MEHEK BT CAR — FULL EDITABLE SOURCE
+          ===============================================
+          Two Android Studio / Gradle projects:
+          1. Mehek_BT_Car
+          2. TararBari_BT_Car
+
+          Both contain the seven selectable themes, centered UI,
+          Bluetooth SPP / HC-05 / HC-06, movement and speed controls.
+          The package names are distinct, so they install separately.
+
+          EDITING:
+          Open either project folder in Android Studio.
+          Main UI and Bluetooth logic:
+          app/src/main/java/com/mehekcar/rc/MainActivity.java
+          App display name / permissions: app/src/main/AndroidManifest.xml
+          Android settings: app/build.gradle
+          Icon resources: app/src/main/res/mipmap-*/
+          
+          BUILD:
+          Install Android Studio, JDK 17 and Android SDK API 35.
+          In Android Studio, use Build > Build APK(s).
+          Or run "gradle assembleDebug" using Gradle 8.9.
+          Debug APK: app/build/outputs/apk/debug/app-debug.apk
+
+          NOTE:
+          These are editable Java Android source projects, NOT just APKs.
+          APK build confirmed in GitHub Actions. Runtime testing on your
+          Android phone, especially the themes and Bluetooth, is advised.
+          TXT
+          cd source-archive
+          zip -qr ../TararBari_Mehek_7_Themes_Source_Projects.zip .
+          cd ..
+          test -s TararBari_Mehek_7_Themes_Source_Projects.zip
+
+      - name: Upload editable source ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: TararBari-Mehek-7-Themes-Source-Projects
+          path: TararBari_Mehek_7_Themes_Source_Projects.zip
+          if-no-files-found: error
