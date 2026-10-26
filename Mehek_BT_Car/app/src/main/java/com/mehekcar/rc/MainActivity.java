@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.*;
 
 public class MainActivity extends Activity {
- static final int GREEN=0xff126a80, GOLD=0xff58d5e6, CREAM=0xff071522, BROWN=0xff17405e, RED=0xffd34257;
+ static final int GREEN=0xff375a29, GOLD=0xffcb9e45, CREAM=0xfff7efdc, BROWN=0xff82451e, RED=0xffb6251c;
  static final UUID SPP=UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
  BluetoothAdapter adapter; BluetoothSocket socket; OutputStream output;
  TextView status, speedLabel; Spinner devices; SeekBar speed;
@@ -83,10 +83,10 @@ public class MainActivity extends Activity {
  Button btn(String s,int a,int b,int txt){
    Button v=new Button(this);v.setAllCaps(false);v.setText(s);v.setTextColor(themeColor(txt));
    v.setTextSize(11*scale);v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
-   v.setBackground(bg(a,b,12,GOLD));v.setElevation(dp(3));return v;
+   v.setBackground(bg(a,b,12,0xffcb9e45));v.setElevation(dp(4));return v;
  }
  Button move(String name,String cmd,int color){
-   Button v=btn(name,color,color==GREEN?0xff0b2339:color==BROWN?0xff10253d:0xff78162b,Color.WHITE);
+   Button v=btn(name,color,color==GREEN?0xff203e22:color==BROWN?0xff5d3213:0xff8e1715,Color.WHITE);
    v.setOnTouchListener((view,event)->{
      if(event.getAction()==MotionEvent.ACTION_DOWN){v.setAlpha(.75f);send(cmd);return true;}
      if(event.getAction()==MotionEvent.ACTION_UP||event.getAction()==MotionEvent.ACTION_CANCEL){
@@ -95,14 +95,14 @@ public class MainActivity extends Activity {
    });return v;
  }
  void ui(){
-   LinearLayout root=col();root.setPadding(dp(9),dp(9),dp(9),dp(9));root.setBackground(bg(0xfff7efdc,0xffe9dcc0,0,0));root.setGravity(Gravity.CENTER_VERTICAL);
+   LinearLayout root=col();root.setPadding(dp(9),dp(9),dp(9),dp(9));root.setBackground(bg(0xfff7efdc,0xffe6dbbe,0,0));root.setGravity(Gravity.CENTER_VERTICAL);
    setContentView(root);
-   LinearLayout head=row();head.setPadding(dp(7),dp(6),dp(7),dp(6));head.setBackground(bg(0xff203e22,0xff375a29,13,GOLD));head.setElevation(dp(4));
+   LinearLayout head=row();head.setPadding(dp(7),dp(6),dp(7),dp(6));head.setBackground(bg(0xff263f1d,0xff61703c,13,0xffcb9e45));head.setElevation(dp(4));
    ImageView logo=new ImageView(this);logo.setImageResource(R.mipmap.ic_launcher);logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
    head.addView(logo,m(51,51,0));LinearLayout brand=col();brand.setPadding(dp(7),0,0,0);
    brand.addView(label("TEAM TARAR BARI",15,Color.WHITE,true));brand.addView(label("Mehek BT Controler",15,GOLD,true));
    brand.addView(label("— VOYAGER OF LIGHT —",9,0xffe8d3a0,false));head.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
-   Button change=btn("🎨 THEME",GREEN,0xff203e22,Color.WHITE);change.setTextSize(10*scale);change.setOnClickListener(v->selectTheme());head.addView(change,m(74,35,0));
+   Button change=btn("🎨 THEME",GREEN,0xff203e22,0xfff4d177);change.setTextSize(10*scale);change.setOnClickListener(v->selectTheme());head.addView(change,m(74,35,0));
    root.addView(head,m(-1,-2,0));
 
    LinearLayout connectCard=col();connectCard.setPadding(dp(6),dp(4),dp(6),dp(3));
@@ -128,14 +128,14 @@ public class MainActivity extends Activity {
    LinearLayout center=row();center.addView(move("◀\nLEFT","L",GREEN),weight(53));center.addView(move("■\nSTOP","S",RED),weight(74));center.addView(move("▶\nRIGHT","R",GREEN),weight(65));pad.addView(center);
    LinearLayout down=row();down.addView(new View(this),weight(65));down.addView(move("▼\nBACKWARD","B",GREEN),weight(65));down.addView(new View(this),weight(58));pad.addView(down);
    root.addView(pad,m(-1,-2,2));
-   root.addView(label("◈  PRECISION SHORTCUTS",12,0xff75451d,true),m(-1,30,2));
+   root.addView(label("◈  PRECISION SHORTCUTS",12,0xff75451d,true),m(-1,21,2));
    LinearLayout diag1=row();diag1.addView(move("↖ FORWARD-LEFT","G",BROWN),weight(43));diag1.addView(move("↗ FORWARD-RIGHT","I",BROWN),weight(49));root.addView(diag1);
    LinearLayout diag2=row();diag2.addView(move("↙ BACKWARD-LEFT","H",BROWN),weight(56));diag2.addView(move("↘ BACKWARD-RIGHT","J",BROWN),weight(49));root.addView(diag2);
    Button max=btn("⚡  MAX SPEED (Q)",0xffeac367,0xffca933a,0xff203e22);max.setOnClickListener(v->{send("q");speed.setProgress(9);});
    root.addView(max,m(-1,39,2));
    Button disconnect=btn("⛓  DISCONNECT",0xffb6251c,0xff8e1715,Color.WHITE);disconnect.setOnClickListener(v->disconnect());
    root.addView(disconnect,m(-1,45,3));
-   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",10,0xff75451d,false);footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,20,3));
+   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",10,0xff75451d,false);footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,18,1));
  }
  void loadDevices(){
    try{
