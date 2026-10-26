@@ -21,6 +21,9 @@ jobs:
           unzip -q "MehekCarAndroid_Project_Themes_Logo.zip" -d "$GITHUB_WORKSPACE"
           test -f "MehekCarAndroid/app/build.gradle"
 
+      - name: Apply new branded interface
+        run: cp ModernMainActivity.java MehekCarAndroid/app/src/main/java/com/mehekcar/rc/MainActivity.java
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
