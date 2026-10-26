@@ -85,11 +85,51 @@ jobs:
           p.write_text(source)
           PY
           gradle --no-daemon --stacktrace assembleDebug
+
           cp app/build/outputs/apk/debug/app-debug.apk ../output/TararBari_BT_Car.apk
+          sed -i 's/android:label="TararBari BT Car"/android:label="Robot Control Neon Blue"/' app/src/main/AndroidManifest.xml
+          sed -i "s/applicationId 'com.tararbari.btcar'/applicationId 'com.tararbari.neonblue'/" app/build.gradle
+          cp ../ModernMainActivity.java app/src/main/java/com/mehekcar/rc/MainActivity.java
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("app/src/main/java/com/mehekcar/rc/MainActivity.java")
+          s=p.read_text()
+          d={
+              "0xff126a80":"0xff087bff",
+              "0xff58d5e6":"0xff32e6ff",
+              "0xff071522":"0xff040e27",
+              "0xff17405e":"0xff103b85",
+              "0xff0b2339":"0xff0942a8",
+              "0xff10253d":"0xff103e88",
+              "0xff0b2236":"0xff071e55",
+              "0xff12314a":"0xff06398f",
+              "0xff215570":"0xff159eff",
+              "0xff142d42":"0xff0b2e72",
+              "0xff0b1f30":"0xff081d4a",
+              "0xff265675":"0xff238bd9",
+              "0xff06364e":"0xff0755ba",
+              "0xff3095ac":"0xff15bbef",
+              "0xff132d43":"0xff123979",
+              "0xff102235":"0xff0b2553",
+              "0xff26647e":"0xff28a1ec",
+              "0xff102c42":"0xff0b2b6d",
+              "0xff071a2b":"0xff071848",
+              "0xff205773":"0xff1883d8",
+              "0xff2aa3b8":"0xff04c9ff",
+              "0xff0d668e":"0xff0753c8",
+              "0xffd34257":"0xfff43754"
+          }
+          for old,new in d.items(): s=s.replace(old,new)
+          s=s.replace('label("TARARBARI",17','label("ROBOT CONTROL",17')
+          s=s.replace('label("BT Controler",15','label("NEON BLUE EDITION",15')
+          p.write_text(s)
+          PY
+          gradle --no-daemon --stacktrace assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../output/Robot_Control_Neon_Blue.apk
 
       - name: Upload both APK files
         uses: actions/upload-artifact@v4
         with:
-          name: Mehek-Cyan-and-TararBari-Gold-APKs
+          name: Three-Bluetooth-APKs-Including-Neon-Blue
           path: output/*.apk
           if-no-files-found: error
