@@ -51,12 +51,45 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk ../output/Mehek_BT_Car.apk
           sed -i 's/android:label="Mehek BT Car"/android:label="TararBari BT Car"/' app/src/main/AndroidManifest.xml
           sed -i "s/applicationId 'com.mehekcar.btcar'/applicationId 'com.tararbari.btcar'/" app/build.gradle
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("app/src/main/java/com/mehekcar/rc/MainActivity.java")
+          source=p.read_text()
+          colors={
+            "0xff126a80":"0xff5b3f89",
+            "0xff58d5e6":"0xffffc66d",
+            "0xff071522":"0xff151020",
+            "0xff17405e":"0xff48345f",
+            "0xff0b2339":"0xff2d2147",
+            "0xff10253d":"0xff392852",
+            "0xff0b2236":"0xff261d3c",
+            "0xff12314a":"0xff392953",
+            "0xff215570":"0xff78518c",
+            "0xff142d42":"0xff302446",
+            "0xff0b1f30":"0xff241a39",
+            "0xff265675":"0xff704b87",
+            "0xff06364e":"0xff432a64",
+            "0xff3095ac":"0xffd79b54",
+            "0xff132d43":"0xff332549",
+            "0xff102235":"0xff261c3b",
+            "0xff26647e":"0xff795d89",
+            "0xff102c42":"0xff35274a",
+            "0xff071a2b":"0xff20172f",
+            "0xff205773":"0xff705287",
+            "0xff2aa3b8":"0xffbd8649",
+            "0xff0d668e":"0xff8b572d"
+          }
+          for old,new in colors.items():
+              source=source.replace(old,new)
+          source=source.replace('label("BT Controler",15','label("BT Car • Gold Edition",15')
+          p.write_text(source)
+          PY
           gradle --no-daemon --stacktrace assembleDebug
           cp app/build/outputs/apk/debug/app-debug.apk ../output/TararBari_BT_Car.apk
 
       - name: Upload both APK files
         uses: actions/upload-artifact@v4
         with:
-          name: Centered-Bluetooth-Car-APKs
+          name: Mehek-Cyan-and-TararBari-Gold-APKs
           path: output/*.apk
           if-no-files-found: error
