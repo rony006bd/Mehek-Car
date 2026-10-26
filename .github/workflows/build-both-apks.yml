@@ -1,0 +1,28 @@
+name: Build both Bluetooth controller APKs
+on:
+  workflow_dispatch:
+  push:
+    branches: [android-dual-controller-build]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [Mehek_BT_Car, TararBari_BT_Car]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Build debug APK
+        working-directory: ${{ matrix.app }}
+        run: gradle --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-APK
+          path: ${{ matrix.app }}/app/build/outputs/apk/debug/*.apk
