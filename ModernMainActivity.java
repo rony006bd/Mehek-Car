@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
  ArrayList<BluetoothDevice> paired=new ArrayList<>();
  float scale=1f;
  int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+0.5f);}
- @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/640f));ui();
+ @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/740f));ui();
    if(adapter==null){status.setText("Bluetooth unavailable");return;}
    if(Build.VERSION.SDK_INT>=31 && checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)!=PackageManager.PERMISSION_GRANTED)
      requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT},200);
@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
    });return v;
  }
  void ui(){
-   LinearLayout root=col();root.setPadding(dp(7),dp(3),dp(7),dp(3));root.setBackgroundColor(CREAM);
+   LinearLayout root=col();root.setPadding(dp(7),dp(14),dp(7),dp(14));root.setBackgroundColor(CREAM);root.setGravity(Gravity.CENTER_VERTICAL);
    setContentView(root);
    LinearLayout head=row();head.setPadding(dp(6),dp(3),dp(6),dp(3));head.setBackground(bg(0xff0b2236,0xff12314a,16,0xff215570));
    ImageView logo=new ImageView(this);logo.setImageResource(R.mipmap.ic_launcher);logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
