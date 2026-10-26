@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
  TextView status, speedLabel; Spinner devices; SeekBar speed;
  ArrayList<BluetoothDevice> paired=new ArrayList<>();
  float scale=1f;
- int theme=0;
+ int theme=2;
  final String[] themes={"Midnight Cyan","Electric Neon Blue","Tarar Bari Green & Gold","Purple & Gold","Classic Royal Blue","Sunset Amber","Magenta Night","Emerald Forest","Rose Gold","Arctic Ice"};
  int themeColor(int c){
    if(theme>=7){int[][] accents={{0xff176b45,0xffd6b35b,0xfff6f0e2},{0xffa45d64,0xffeac0a5,0xfffff3ec},{0xff297a9c,0xff9de9fa,0xffeffaff}};int[] a=accents[theme-7];if(c==GREEN)return a[0];if(c==GOLD)return a[1];if(c==CREAM)return a[2];if(c==BROWN)return a[0];}
@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
  }).setNegativeButton("Cancel",null).show();}
 
  int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+0.5f);}
- @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();theme=Math.max(0,Math.min(themes.length-1,getPreferences(0).getInt("theme",0)));float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/740f));ui();
+ @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();theme=Math.max(0,Math.min(themes.length-1,getPreferences(0).getInt("theme",2)));float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/740f));ui();
    if(adapter==null){status.setText("Bluetooth unavailable");return;}
    if(Build.VERSION.SDK_INT>=31 && checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)!=PackageManager.PERMISSION_GRANTED)
      requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT},200);
@@ -82,8 +82,8 @@ public class MainActivity extends Activity {
  }
  Button btn(String s,int a,int b,int txt){
    Button v=new Button(this);v.setAllCaps(false);v.setText(s);v.setTextColor(themeColor(txt));
-   v.setTextSize(13*scale);v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
-   v.setBackground(bg(a,b,17,GOLD));v.setElevation(dp(6));return v;
+   v.setTextSize(11*scale);v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
+   v.setBackground(bg(a,b,12,GOLD));v.setElevation(dp(3));return v;
  }
  Button move(String name,String cmd,int color){
    Button v=btn(name,color,color==GREEN?0xff0b2339:color==BROWN?0xff10253d:0xff78162b,Color.WHITE);
@@ -95,25 +95,25 @@ public class MainActivity extends Activity {
    });return v;
  }
  void ui(){
-   LinearLayout root=col();root.setPadding(dp(7),dp(14),dp(7),dp(14));root.setBackgroundColor(themeColor(CREAM));root.setGravity(Gravity.CENTER_VERTICAL);
+   LinearLayout root=col();root.setPadding(dp(9),dp(9),dp(9),dp(9));root.setBackground(bg(0xfff7efdc,0xffe9dcc0,0,0));root.setGravity(Gravity.CENTER_VERTICAL);
    setContentView(root);
-   LinearLayout head=row();head.setPadding(dp(6),dp(3),dp(6),dp(3));head.setBackground(bg(0xff0b2236,0xff12314a,16,0xff215570));
+   LinearLayout head=row();head.setPadding(dp(7),dp(6),dp(7),dp(6));head.setBackground(bg(0xff203e22,0xff375a29,13,GOLD));head.setElevation(dp(4));
    ImageView logo=new ImageView(this);logo.setImageResource(R.mipmap.ic_launcher);logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-   head.addView(logo,m(47,47,0));LinearLayout brand=col();brand.setPadding(dp(7),0,0,0);
+   head.addView(logo,m(51,51,0));LinearLayout brand=col();brand.setPadding(dp(7),0,0,0);
    brand.addView(label("TararBari BT Car",17,Color.WHITE,true));brand.addView(label("BT Controler",15,GOLD,true));
-   brand.addView(label("— V O Y A G E R  O F  L I G H T —",9,0xffb8cba9,false));head.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
-   Button change=btn("🎨 THEME",GREEN,0xff06364e,Color.WHITE);change.setTextSize(10*scale);change.setOnClickListener(v->selectTheme());head.addView(change,m(72,37,0));
+   brand.addView(label("— VOYAGER OF LIGHT —",9,0xffe8d3a0,false));head.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
+   Button change=btn("🎨 THEME",GREEN,0xff203e22,Color.WHITE);change.setTextSize(10*scale);change.setOnClickListener(v->selectTheme());head.addView(change,m(74,35,0));
    root.addView(head,m(-1,-2,0));
 
    LinearLayout connectCard=col();connectCard.setPadding(dp(6),dp(4),dp(6),dp(3));
-   connectCard.setBackground(bg(0xff142d42,0xff0b1f30,13,0xff265675));
-   LinearLayout statusRow=row();status=label("●  Disconnected",13,GOLD,true);statusRow.addView(status,new LinearLayout.LayoutParams(0,-2,1));
-   Button connect=btn("CONNECT",GREEN,0xff06364e,Color.WHITE);connect.setOnClickListener(v->connect());
+   connectCard.setBackground(bg(0xfffdfaf0,0xfff0e8d3,13,GOLD));
+   LinearLayout statusRow=row();status=label("●  Disconnected",12,0xff203e22,true);statusRow.addView(status,new LinearLayout.LayoutParams(0,-2,1));
+   Button connect=btn("CONNECT",GREEN,0xff203e22,Color.WHITE);connect.setOnClickListener(v->connect());
    statusRow.addView(connect,m(95,35,0));connectCard.addView(statusRow);
-   devices=new Spinner(this);devices.setBackground(bg(0xffd9eaf0,0xffb3d2dc,9,0xff3095ac));
-   connectCard.addView(devices,m(-1,30,0));root.addView(connectCard,m(-1,-2,4));
-   LinearLayout speedCard=col();speedCard.setPadding(dp(7),dp(3),dp(7),dp(3));speedCard.setBackground(bg(0xff132d43,0xff102235,13,0xff26647e));
-   speedLabel=label("◉  SPEED LEVEL  8",18,GOLD,true);speedCard.addView(speedLabel,m(-1,23,0));
+   devices=new Spinner(this);devices.setBackground(bg(0xfff6f2e8,0xffe8e0cc,9,GOLD));
+   connectCard.addView(devices,m(-1,30,0));root.addView(connectCard,m(-1,-2,3));
+   LinearLayout speedCard=col();speedCard.setPadding(dp(7),dp(3),dp(7),dp(3));speedCard.setBackground(bg(0xfffdfaf0,0xfff0e8d3,13,GOLD));
+   speedLabel=label("◉  SPEED LEVEL  8",15,0xff203e22,true);speedCard.addView(speedLabel,m(-1,23,0));
    speed=new SeekBar(this);speed.setMax(9);speed.setProgress(8);
    speed.setProgressTintList(ColorStateList.valueOf(themeColor(GOLD)));speed.setThumbTintList(ColorStateList.valueOf(themeColor(GOLD)));
    speedCard.addView(speed,m(-1,26,0));
@@ -121,21 +121,21 @@ public class MainActivity extends Activity {
    speed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
      public void onProgressChanged(SeekBar s,int p,boolean user){speedLabel.setText("◉  SPEED LEVEL  "+p);if(user)send(""+p);}
      public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){}
-   });root.addView(speedCard,m(-1,-2,4));
-   root.addView(label("◈  MAIN DRIVE CONSOLE",14,GOLD,true),m(-1,21,1));
-   LinearLayout pad=col();pad.setPadding(dp(2),dp(3),dp(2),dp(3));pad.setBackground(bg(0xff102c42,0xff071a2b,14,0xff205773));
-   LinearLayout up=row();up.addView(new View(this),weight(49));up.addView(move("▲\nFORWARD","F",GREEN),weight(65));up.addView(new View(this),weight(65));pad.addView(up);
-   LinearLayout center=row();center.addView(move("◀\nLEFT","L",GREEN),weight(53));center.addView(move("■\nSTOP","S",RED),weight(74));center.addView(move("▶\nRIGHT","R",GREEN),weight(74));pad.addView(center);
-   LinearLayout down=row();down.addView(new View(this),weight(65));down.addView(move("▼\nBACKWARD","B",GREEN),weight(65));down.addView(new View(this),weight(65));pad.addView(down);
-   root.addView(pad,m(-1,-2,3));
-   root.addView(label("◈  PRECISION SHORTCUTS",14,GOLD,true),m(-1,30,2));
-   LinearLayout diag1=row();diag1.addView(move("↖ FORWARD-LEFT","G",BROWN),weight(43));diag1.addView(move("↗ FORWARD-RIGHT","I",BROWN),weight(56));root.addView(diag1);
-   LinearLayout diag2=row();diag2.addView(move("↙ BACKWARD-LEFT","H",BROWN),weight(56));diag2.addView(move("↘ BACKWARD-RIGHT","J",BROWN),weight(56));root.addView(diag2);
-   Button max=btn("⚡  MAX SPEED (Q)",0xff2aa3b8,0xff0d668e,Color.WHITE);max.setOnClickListener(v->{send("q");speed.setProgress(9);});
-   root.addView(max,m(-1,41,2));
-   Button disconnect=btn("⛓  DISCONNECT",0xffb52a45,RED,Color.WHITE);disconnect.setOnClickListener(v->disconnect());
-   root.addView(disconnect,m(-1,54,4));
-   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",10,GOLD,false);footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,20,2));
+   });root.addView(speedCard,m(-1,-2,3));
+   root.addView(label("◈  MAIN DRIVE CONSOLE",12,0xff75451d,true),m(-1,21,1));
+   LinearLayout pad=col();pad.setPadding(dp(2),dp(3),dp(2),dp(3));pad.setBackground(bg(0xfffdfaf0,0xfff0e8d3,14,GOLD));
+   LinearLayout up=row();up.addView(new View(this),weight(49));up.addView(move("▲\nFORWARD","F",GREEN),weight(65));up.addView(new View(this),weight(58));pad.addView(up);
+   LinearLayout center=row();center.addView(move("◀\nLEFT","L",GREEN),weight(53));center.addView(move("■\nSTOP","S",RED),weight(74));center.addView(move("▶\nRIGHT","R",GREEN),weight(65));pad.addView(center);
+   LinearLayout down=row();down.addView(new View(this),weight(65));down.addView(move("▼\nBACKWARD","B",GREEN),weight(65));down.addView(new View(this),weight(58));pad.addView(down);
+   root.addView(pad,m(-1,-2,2));
+   root.addView(label("◈  PRECISION SHORTCUTS",12,0xff75451d,true),m(-1,30,2));
+   LinearLayout diag1=row();diag1.addView(move("↖ FORWARD-LEFT","G",BROWN),weight(43));diag1.addView(move("↗ FORWARD-RIGHT","I",BROWN),weight(49));root.addView(diag1);
+   LinearLayout diag2=row();diag2.addView(move("↙ BACKWARD-LEFT","H",BROWN),weight(56));diag2.addView(move("↘ BACKWARD-RIGHT","J",BROWN),weight(49));root.addView(diag2);
+   Button max=btn("⚡  MAX SPEED (Q)",0xffeac367,0xffca933a,0xff203e22);max.setOnClickListener(v->{send("q");speed.setProgress(9);});
+   root.addView(max,m(-1,39,2));
+   Button disconnect=btn("⛓  DISCONNECT",0xffb6251c,0xff8e1715,Color.WHITE);disconnect.setOnClickListener(v->disconnect());
+   root.addView(disconnect,m(-1,45,3));
+   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",10,0xff75451d,false);footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,20,3));
  }
  void loadDevices(){
    try{
