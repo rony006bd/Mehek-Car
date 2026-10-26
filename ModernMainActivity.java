@@ -48,16 +48,16 @@ public class MainActivity extends Activity {
      {0xff0d668e,0xff0753c8,0xffca933a,0xff8b572d,0xff0a5fc7},
      {0xffd34257,0xfff43754,0xffb6251c,0xffbb243b,0xffe63349},
    };
-   for(int[] p:pairs)if(p[0]==c)return p[theme+1];
+   for(int[] p:pairs)if(p[0]==c)return p[Math.max(0,Math.min(theme,p.length-1))];
    if(theme==2 && (c==0xffffffff || c==0xff58d5e6))return 0xff253e23;
    return c;
  }
  void selectTheme(){new android.app.AlertDialog.Builder(this).setTitle("Choose controller design").setSingleChoiceItems(themes,theme,(dialog,which)->{
-   theme=which;getPreferences(0).edit().putInt("theme",theme).apply();int n=speed.getProgress();ui();speed.setProgress(n);if(adapter!=null && (Build.VERSION.SDK_INT<31 || checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED))loadDevices();if(output!=null)status.setText("●  Connected");dialog.dismiss();
+   theme=Math.max(0,Math.min(themes.length-1,which));getPreferences(0).edit().putInt("theme",theme).apply();int n=speed.getProgress();ui();speed.setProgress(n);if(adapter!=null && (Build.VERSION.SDK_INT<31 || checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED))loadDevices();if(output!=null)status.setText("●  Connected");dialog.dismiss();
  }).setNegativeButton("Cancel",null).show();}
 
  int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+0.5f);}
- @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();theme=getPreferences(0).getInt("theme",0);float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/740f));ui();
+ @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();theme=Math.max(0,Math.min(themes.length-1,getPreferences(0).getInt("theme",0)));float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/740f));ui();
    if(adapter==null){status.setText("Bluetooth unavailable");return;}
    if(Build.VERSION.SDK_INT>=31 && checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)!=PackageManager.PERMISSION_GRANTED)
      requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT},200);
