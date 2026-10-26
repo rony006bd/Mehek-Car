@@ -40,19 +40,25 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build multi-theme Bluetooth controller
+      - name: Build two fixed multi-theme apps
         run: |
           set -e
           cd MehekCarAndroid
-          sed -i 's/android:label="Mehek Car"/android:label="TararBari BT Controller"/' app/src/main/AndroidManifest.xml
-          sed -i "s/applicationId 'com.mehekcar.rc'/applicationId 'com.tararbari.multitheme'/" app/build.gradle
-          gradle --no-daemon --stacktrace assembleDebug
           mkdir -p ../output
-          cp app/build/outputs/apk/debug/app-debug.apk ../output/TararBari_BT_Controller_All_Themes.apk
+          sed -i 's/android:label="Mehek Car"/android:label="Mehek BT Car"/' app/src/main/AndroidManifest.xml
+          sed -i "s/applicationId 'com.mehekcar.rc'/applicationId 'com.mehekcar.allthemes'/" app/build.gradle
+          sed -i 's/label("TARARBARI",17/label("Mehek BT Car",17/' app/src/main/java/com/mehekcar/rc/MainActivity.java
+          gradle --no-daemon --stacktrace assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../output/Mehek_BT_Car_All_Themes_Fixed.apk
+          sed -i 's/android:label="Mehek BT Car"/android:label="TararBari BT Car"/' app/src/main/AndroidManifest.xml
+          sed -i "s/applicationId 'com.mehekcar.allthemes'/applicationId 'com.tararbari.allthemes'/" app/build.gradle
+          sed -i 's/label("Mehek BT Car",17/label("TararBari BT Car",17/' app/src/main/java/com/mehekcar/rc/MainActivity.java
+          gradle --no-daemon --stacktrace assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../output/TararBari_BT_Car_All_Themes_Fixed.apk
 
-      - name: Upload multi-theme APK
+      - name: Upload both APKs
         uses: actions/upload-artifact@v4
         with:
-          name: TararBari-BT-Controller-All-Themes
+          name: Fixed-Multi-Theme-Bluetooth-Apps
           path: output/*.apk
           if-no-files-found: error
