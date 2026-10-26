@@ -1,4 +1,4 @@
-name: Build TararBari BT Controler APK
+name: Build Mehek and TararBari BT Car APK
 
 on:
   workflow_dispatch:
@@ -24,9 +24,6 @@ jobs:
       - name: Apply new branded interface
         run: cp ModernMainActivity.java MehekCarAndroid/app/src/main/java/com/mehekcar/rc/MainActivity.java
 
-      - name: Set Android app display name
-        run: sed -i 's/android:label="Mehek Car"/android:label="TararBari BT Controler"/' MehekCarAndroid/app/src/main/AndroidManifest.xml
-
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -43,13 +40,23 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Compile debug APK
-        working-directory: MehekCarAndroid
-        run: gradle --no-daemon --stacktrace assembleDebug
+      - name: Build two independently installable APKs
+        run: |
+          set -e
+          mkdir -p output
+          cd MehekCarAndroid
+          sed -i 's/android:label="Mehek Car"/android:label="Mehek BT Car"/' app/src/main/AndroidManifest.xml
+          sed -i "s/applicationId 'com.mehekcar.rc'/applicationId 'com.mehekcar.btcar'/" app/build.gradle
+          gradle --no-daemon --stacktrace assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../output/Mehek_BT_Car.apk
+          sed -i 's/android:label="Mehek BT Car"/android:label="TararBari BT Car"/' app/src/main/AndroidManifest.xml
+          sed -i "s/applicationId 'com.mehekcar.btcar'/applicationId 'com.tararbari.btcar'/" app/build.gradle
+          gradle --no-daemon --stacktrace assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../output/TararBari_BT_Car.apk
 
-      - name: Upload installable APK
+      - name: Upload both APK files
         uses: actions/upload-artifact@v4
         with:
-          name: TararBari-BT-Controler-APK
-          path: MehekCarAndroid/app/build/outputs/apk/debug/app-debug.apk
+          name: Centered-Bluetooth-Car-APKs
+          path: output/*.apk
           if-no-files-found: error
