@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.bluetooth.*;
 import android.content.pm.PackageManager;
 import android.content.*;
+import android.content.res.Configuration;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -24,6 +25,23 @@ public class MainActivity extends Activity {
  ArrayList<BluetoothDevice> discovered=new ArrayList<>();
  boolean receiverRegistered=false;
  float scale=1f;
+ void showSettings(){
+  new android.app.AlertDialog.Builder(this).setTitle("Controller settings")
+   .setItems(new String[]{"Choose theme","Landscape mode","Portrait mode"},(dialog,which)->{
+    if(which==0)selectTheme();else switchOrientation(which==1);
+   }).setNegativeButton("Close",null).show();
+ }
+ void switchOrientation(boolean landscape){
+  getPreferences(0).edit().putBoolean("landscape",landscape).apply();
+  setRequestedOrientation(landscape?android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+ }
+ @Override public void onConfigurationChanged(Configuration config){
+  super.onConfigurationChanged(config);
+  int previous=speed==null?8:speed.getProgress();
+  ui();speed.setProgress(previous);
+  if(adapter!=null&&(Build.VERSION.SDK_INT<31||checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED))loadDevices();
+  if(output!=null)status.setText("●  Connected");
+ }
  int theme=2;
  final String[] themes={"Midnight Cyan","Electric Neon Blue","Tarar Bari Green & Gold","Purple & Gold","Classic Royal Blue","Sunset Amber","Magenta Night","Emerald Forest","Rose Gold","Arctic Ice"};
  int themeColor(int c){
@@ -52,7 +70,7 @@ public class MainActivity extends Activity {
  }).setNegativeButton("Cancel",null).show();}
 
  int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+0.5f);}
- @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();theme=Math.max(0,Math.min(themes.length-1,getPreferences(0).getInt("theme",2)));float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/740f));ui();
+ @Override public void onCreate(Bundle b){super.onCreate(b);adapter=BluetoothAdapter.getDefaultAdapter();theme=Math.max(0,Math.min(themes.length-1,getPreferences(0).getInt("theme",2)));setRequestedOrientation(getPreferences(0).getBoolean("landscape",false)?android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);float available=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density-90f;scale=Math.min(1f,Math.max(.60f,available/740f));ui();
    if(adapter==null){status.setText("Bluetooth unavailable");return;}
    if(Build.VERSION.SDK_INT>=31 && checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)!=PackageManager.PERMISSION_GRANTED)
      requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT},200);
@@ -156,6 +174,7 @@ public class MainActivity extends Activity {
   };
  }
 void ui(){
+  boolean wide=getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE;
   LinearLayout root=col();root.setPadding(dp(8),dp(7),dp(8),dp(7));root.setBackground(artwork(false));
   root.setGravity(Gravity.TOP);
   android.widget.ScrollView scroll=new android.widget.ScrollView(this);
@@ -200,7 +219,7 @@ void ui(){
   circle.setShape(android.graphics.drawable.GradientDrawable.OVAL);
   circle.setColor(themeColor(GREEN));circle.setStroke(dp(2),themeColor(GOLD));
   change.setBackground(circle);
-  change.setOnClickListener(v->selectTheme());head.addView(change,m(43,43,2));root.addView(head,m(-1,128,2));
+  change.setOnClickListener(v->showSettings());head.addView(change,m(43,43,2));root.addView(head,m(-1,wide?80:128,2));
   LinearLayout connectCard=col();connectCard.setPadding(dp(6),dp(3),dp(6),dp(3));
   connectCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   LinearLayout statusRow=row();status=label("●  Disconnected",11,0xff263f1d,true);
@@ -249,6 +268,24 @@ void ui(){
   tip.addView(hint);root.addView(tip,m(-1,-2,3));
   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",9,0xff75451d,false);
   footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,28,4));
+  if(wide){
+   root.removeAllViews();
+   root.addView(head,m(-1,80,2));
+   LinearLayout columns=row();columns.setGravity(Gravity.TOP);
+   LinearLayout left=col(),right=col();
+   left.addView(pad,m(-1,-2,2));
+   left.addView(diagonals1,m(-1,-2,1));
+   left.addView(diagonals2,m(-1,-2,1));
+   right.addView(connectCard,m(-1,-2,2));
+   right.addView(speedCard,m(-1,-2,2));
+   right.addView(max,m(-1,37,2));
+   right.addView(disconnect,m(-1,39,2));
+   right.addView(tip,m(-1,-2,2));
+   columns.addView(left,new LinearLayout.LayoutParams(0,-2,1.15f));
+   columns.addView(right,new LinearLayout.LayoutParams(0,-2,1f));
+   root.addView(columns,m(-1,-2,2));
+   root.addView(footer,m(-1,24,2));
+  }
  }
  final BroadcastReceiver discoveryReceiver=new BroadcastReceiver(){
   @Override public void onReceive(Context context,Intent intent){
