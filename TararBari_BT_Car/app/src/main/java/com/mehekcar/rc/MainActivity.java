@@ -302,6 +302,21 @@ void ui(){
    }
   }
  };
+ void beginDiscovery(int attempt){
+  if(isFinishing()||adapter==null)return;
+  try{
+   if(adapter.isDiscovering()){
+    if(attempt<3){adapter.cancelDiscovery();status.setText("Preparing Bluetooth scan...");new Handler(Looper.getMainLooper()).postDelayed(()->beginDiscovery(attempt+1),700);return;}
+   }
+   boolean started=adapter.startDiscovery();
+   if(started){status.setText("●  Scanning nearby devices...");return;}
+   if(attempt<3){
+    status.setText("Retrying Bluetooth scan ("+(attempt+1)+"/3)...");
+    new Handler(Looper.getMainLooper()).postDelayed(()->beginDiscovery(attempt+1),1100);
+   }else status.setText("Scan unavailable. Turn on Location and Bluetooth, or pair HC-05 in phone Settings.");
+  }catch(SecurityException e){status.setText("Allow Nearby devices permission");}
+   catch(Exception e){status.setText("Scan error. Pair HC-05 in phone Bluetooth Settings.");}
+ }
  void scanDevices(){
   if(adapter==null){status.setText("Bluetooth unavailable");return;}
   ArrayList<String> required=new ArrayList<>();
@@ -320,10 +335,14 @@ void ui(){
     else registerReceiver(discoveryReceiver,filter);
     receiverRegistered=true;
    }
-   if(adapter.isDiscovering())adapter.cancelDiscovery();
    discovered.clear();loadDevices();
-   if(adapter.startDiscovery())status.setText("●  Scanning nearby Bluetooth devices...");
-   else status.setText("Unable to start scan — try again");
+   if(Build.VERSION.SDK_INT<31){
+    android.location.LocationManager lm=(android.location.LocationManager)getSystemService(Context.LOCATION_SERVICE);
+    if(lm!=null&&!lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)&&!lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)){
+     status.setText("Enable phone Location to discover Bluetooth devices");return;
+    }
+   }
+   beginDiscovery(0);
   }catch(SecurityException e){status.setText("Allow Nearby Devices permission");}
  }
  void loadDevices(){
