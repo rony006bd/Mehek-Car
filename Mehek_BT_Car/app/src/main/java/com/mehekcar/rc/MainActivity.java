@@ -313,7 +313,7 @@ void ui(){
    if(attempt<3){
     status.setText("Retrying Bluetooth scan ("+(attempt+1)+"/3)...");
     new Handler(Looper.getMainLooper()).postDelayed(()->beginDiscovery(attempt+1),1100);
-   }else status.setText("Scan unavailable. Turn on Location and Bluetooth, or pair HC-05 in phone Settings.");
+   }else status.setText("Discovery blocked by phone. Select paired HC-05/HC-06 and press CONNECT.");
   }catch(SecurityException e){status.setText("Allow Nearby devices permission");}
    catch(Exception e){status.setText("Scan error. Pair HC-05 in phone Bluetooth Settings.");}
  }
@@ -342,6 +342,7 @@ void ui(){
      status.setText("Enable phone Location to discover Bluetooth devices");return;
     }
    }
+   if(!paired.isEmpty())status.setText("Paired devices ready. CONNECT directly, or wait for discovery.");
    beginDiscovery(0);
   }catch(SecurityException e){status.setText("Allow Nearby Devices permission");}
  }
@@ -384,7 +385,7 @@ void ui(){
     }catch(SecurityException e){status.setText("Allow Nearby Devices permission");}
     return;
    }
-   status.setText("●  Connecting...");
+   status.setText("●  Connecting to paired device...");
    new Thread(()->{
      BluetoothSocket s=null;
      try{s=d.createRfcommSocketToServiceRecord(SPP);adapter.cancelDiscovery();s.connect();
