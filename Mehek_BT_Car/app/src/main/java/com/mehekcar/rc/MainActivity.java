@@ -24,36 +24,25 @@ public class MainActivity extends Activity {
  int theme=2;
  final String[] themes={"Midnight Cyan","Electric Neon Blue","Tarar Bari Green & Gold","Purple & Gold","Classic Royal Blue","Sunset Amber","Magenta Night","Emerald Forest","Rose Gold","Arctic Ice"};
  int themeColor(int c){
-   if(theme>=7){int[][] accents={{0xff176b45,0xffd6b35b,0xfff6f0e2},{0xffa45d64,0xffeac0a5,0xfffff3ec},{0xff297a9c,0xff9de9fa,0xffeffaff}};int[] a=accents[theme-7];if(c==GREEN)return a[0];if(c==GOLD)return a[1];if(c==CREAM)return a[2];if(c==BROWN)return a[0];}
-
-   int[][] pairs={
-     {0xff126a80,0xff087bff,0xff375a29,0xff5b3f89,0xff0750ad,0xffce6a1c,0xffa93681},
-     {0xff58d5e6,0xff32e6ff,0xffcb9e45,0xffffc66d,0xff40cfff,0xffffd16d,0xffff8fdc},
-     {0xff071522,0xff040e27,0xfff7efdc,0xff151020,0xff091d48,0xff201207,0xff160b23},
-     {0xff17405e,0xff103b85,0xff75451d,0xff48345f,0xff174eaa,0xff82451e,0xff63325f},
-     {0xff0b2339,0xff0942a8,0xff263f1d,0xff2d2147,0xff08428e,0xff43200d,0xff341336},
-     {0xff10253d,0xff103e88,0xff483419,0xff392852,0xff153f8e,0xff5d3213,0xff44204c},
-     {0xff0b2236,0xff071e55,0xff314927,0xff261d3c,0xff10336e,0xff2d160c,0xff36133e},
-     {0xff12314a,0xff06398f,0xff61703c,0xff392953,0xff1254ad,0xff643316,0xff521e57},
-     {0xff215570,0xff159eff,0xffb99845,0xff78518c,0xff2399ec,0xffb6732e,0xff873678},
-     {0xff142d42,0xff0b2e72,0xfff6f0e2,0xff302446,0xff0e3983,0xff321c13,0xff28112f},
-     {0xff0b1f30,0xff081d4a,0xffe4d9bd,0xff241a39,0xff102552,0xff23150d,0xff210d2c},
-     {0xff265675,0xff238bd9,0xffcfaf61,0xff704b87,0xff2497e3,0xff9c561e,0xff713477},
-     {0xff06364e,0xff0755ba,0xff203e22,0xff432a64,0xff1054b0,0xff7e4215,0xff56205c},
-     {0xff3095ac,0xff15bbef,0xffbba25b,0xffd79b54,0xff22a5e8,0xffed9e46,0xffda65bb},
-     {0xff132d43,0xff123979,0xfff7f0df,0xff332549,0xff103b86,0xff402318,0xff31133c},
-     {0xff102235,0xff0b2553,0xffe2d4b4,0xff261c3b,0xff0d265b,0xff2d180f,0xff240e2e},
-     {0xff26647e,0xff28a1ec,0xffb89646,0xff795d89,0xff248aca,0xffca7838,0xffb44ea7},
-     {0xff102c42,0xff0b2b6d,0xffe6dbbe,0xff35274a,0xff103b85,0xff4e2c18,0xff411c4a},
-     {0xff071a2b,0xff071848,0xfff7efdc,0xff20172f,0xff0b2459,0xff29180f,0xff280d35},
-     {0xff205773,0xff1883d8,0xffb99845,0xff705287,0xff2f9ad2,0xff8c491f,0xff822c7e},
-     {0xff2aa3b8,0xff04c9ff,0xffeac367,0xffbd8649,0xff1aabff,0xffff9f34,0xffed53c6},
-     {0xff0d668e,0xff0753c8,0xffca933a,0xff8b572d,0xff0a5fc7,0xffa75816,0xffa72980},
-     {0xffd34257,0xfff43754,0xffb6251c,0xffbb243b,0xffe63349,0xffc73532,0xffec335d},
-   };
-   for(int[] p:pairs)if(p[0]==c)return p[Math.max(0,Math.min(theme,p.length-1))];
-   if(theme==2 && (c==0xffffffff || c==0xff58d5e6))return 0xff253e23;
-   return c;
+  int[][] palettes={
+   {0xff126a80,0xff58d5e6,0xff071522,0xff17405e,0xffd34257},
+   {0xff0750ad,0xff40cfff,0xff091d48,0xff174eaa,0xffe63349},
+   {0xff375a29,0xffcb9e45,0xfff7efdc,0xff82451e,0xffb6251c},
+   {0xff5b3f89,0xffffc66d,0xfff1e9f6,0xff48345f,0xffbb243b},
+   {0xff0750ad,0xff40cfff,0xffeaf2ff,0xff174eaa,0xffe63349},
+   {0xffce6a1c,0xffffd16d,0xfffff2df,0xff82451e,0xffc73532},
+   {0xffa93681,0xffff8fdc,0xfffaeaf6,0xff63325f,0xffec335d},
+   {0xff176b45,0xffd6b35b,0xfff6f0e2,0xff276c46,0xffc42f30},
+   {0xffa45d64,0xffeac0a5,0xfffff3ec,0xff864f58,0xffc73b4c},
+   {0xff297a9c,0xff9de9fa,0xffeffaff,0xff1e5d80,0xffd34257}
+  };
+  int[] a=palettes[Math.max(0,Math.min(theme,9))];
+  if(c==GREEN||c==0xff263f1d||c==0xff203e22||c==0xff375a29||c==0xff61703c)return a[0];
+  if(c==GOLD||c==0xfff4d177||c==0xffb99845||c==0xffeac367||c==0xffca933a)return a[1];
+  if(c==CREAM||c==0xffe6dbbe||c==0xfff6f0e2||c==0xffe4d9bd)return a[2];
+  if(c==BROWN||c==0xff75451d||c==0xff5d3213)return a[3];
+  if(c==RED||c==0xff8e1715)return a[4];
+  return c;
  }
  void selectTheme(){new android.app.AlertDialog.Builder(this).setTitle("Choose controller design").setSingleChoiceItems(themes,theme,(dialog,which)->{
    theme=Math.max(0,Math.min(themes.length-1,which));getPreferences(0).edit().putInt("theme",theme).apply();int n=speed.getProgress();ui();speed.setProgress(n);if(adapter!=null && (Build.VERSION.SDK_INT<31 || checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED))loadDevices();if(output!=null)status.setText("●  Connected");dialog.dismiss();
@@ -82,8 +71,8 @@ public class MainActivity extends Activity {
    t.setGravity(Gravity.CENTER_VERTICAL);if(bold)t.setTypeface(Typeface.DEFAULT,Typeface.BOLD);return t;
  }
  Button btn(String s,int a,int b,int txt){
-   Button v=new Button(this);v.setAllCaps(false);v.setText(s);v.setTextColor(themeColor(txt));
-   v.setTextSize(11*scale);v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
+   Button v=new Button(this);v.setAllCaps(false);v.setText(s);v.setTextColor((txt==Color.WHITE)?Color.WHITE:themeColor(txt));
+   v.setTextSize(12*scale);v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
    v.setBackground(bg(a,b,12,GOLD));v.setElevation(dp(5));return v;
  }
  Button move(String name,String cmd,int color){
