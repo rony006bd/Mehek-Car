@@ -3,6 +3,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.*;
 import android.content.pm.PackageManager;
+import android.content.*;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -20,6 +21,8 @@ public class MainActivity extends Activity {
  BluetoothAdapter adapter; BluetoothSocket socket; OutputStream output;
  TextView status, speedLabel; Spinner devices; SeekBar speed;
  ArrayList<BluetoothDevice> paired=new ArrayList<>();
+ ArrayList<BluetoothDevice> discovered=new ArrayList<>();
+ boolean receiverRegistered=false;
  float scale=1f;
  int theme=2;
  final String[] themes={"Midnight Cyan","Electric Neon Blue","Tarar Bari Green & Gold","Purple & Gold","Classic Royal Blue","Sunset Amber","Magenta Night","Emerald Forest","Rose Gold","Arctic Ice"};
@@ -188,7 +191,12 @@ void ui(){
   Button connect=btn("CONNECT",GREEN,0xff203e22,Color.WHITE);
   connect.setTextSize(12*scale);connect.setSingleLine(true);connect.setMinHeight(0);connect.setMinimumHeight(0);connect.setPadding(dp(3),0,dp(3),0);connect.setOnClickListener(v->connect());statusRow.addView(connect,m(112,48,0));connectCard.addView(statusRow);
   devices=new Spinner(this);devices.setBackground(bg(0xfff6f0e2,0xffe4d9bd,9,GOLD));devices.setPopupBackgroundDrawable(bg(CREAM,CREAM,8,GOLD));
-  devices.setMinimumHeight(dp(48));connectCard.addView(devices,m(-1,44,0));root.addView(connectCard,m(-1,-2,3));
+  devices.setMinimumHeight(dp(48));
+  LinearLayout deviceRow=row();
+  deviceRow.addView(devices,new LinearLayout.LayoutParams(0,dp(48*scale),1));
+  Button scan=btn("⌕ SCAN",GREEN,GREEN,Color.WHITE);scan.setTextSize(11*scale);
+  scan.setOnClickListener(v->scanDevices());deviceRow.addView(scan,m(88,48,2));
+  connectCard.addView(deviceRow);root.addView(connectCard,m(-1,-2,3));
   LinearLayout speedCard=col();speedCard.setPadding(dp(7),dp(2),dp(7),dp(2));
   speedCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   speedLabel=label("◉  SPEED LEVEL  8",12,0xff263f1d,true);
@@ -225,10 +233,55 @@ void ui(){
   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",9,0xff75451d,false);
   footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,28,4));
  }
+ final BroadcastReceiver discoveryReceiver=new BroadcastReceiver(){
+  @Override public void onReceive(Context context,Intent intent){
+   String action=intent.getAction();
+   if(BluetoothDevice.ACTION_FOUND.equals(action)){
+    BluetoothDevice d=Build.VERSION.SDK_INT>=33?intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE,BluetoothDevice.class):intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+    if(d!=null){boolean exists=false;for(BluetoothDevice old:discovered)if(old.getAddress().equals(d.getAddress()))exists=true;
+     if(!exists){discovered.add(d);loadDevices();}}
+   }else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
+    status.setText("●  Scan complete — select your robot");
+   }else if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)){
+    int state=intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,-1);
+    if(state==BluetoothDevice.BOND_BONDED){status.setText("●  Paired — tap CONNECT");loadDevices();}
+   }
+  }
+ };
+ void scanDevices(){
+  if(adapter==null){status.setText("Bluetooth unavailable");return;}
+  ArrayList<String> required=new ArrayList<>();
+  if(Build.VERSION.SDK_INT>=31){
+   if(checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN)!=PackageManager.PERMISSION_GRANTED)required.add(Manifest.permission.BLUETOOTH_SCAN);
+   if(checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)!=PackageManager.PERMISSION_GRANTED)required.add(Manifest.permission.BLUETOOTH_CONNECT);
+  }else if(Build.VERSION.SDK_INT>=23 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED)required.add(Manifest.permission.ACCESS_FINE_LOCATION);
+  if(!required.isEmpty()){requestPermissions(required.toArray(new String[0]),201);return;}
+  if(!adapter.isEnabled()){status.setText("Turn on Bluetooth in phone Settings");return;}
+  try{
+   if(!receiverRegistered){
+    IntentFilter filter=new IntentFilter();filter.addAction(BluetoothDevice.ACTION_FOUND);
+    filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+    filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+    if(Build.VERSION.SDK_INT>=33)registerReceiver(discoveryReceiver,filter,Context.RECEIVER_EXPORTED);
+    else registerReceiver(discoveryReceiver,filter);
+    receiverRegistered=true;
+   }
+   if(adapter.isDiscovering())adapter.cancelDiscovery();
+   discovered.clear();loadDevices();
+   if(adapter.startDiscovery())status.setText("●  Scanning nearby Bluetooth devices...");
+   else status.setText("Unable to start scan — try again");
+  }catch(SecurityException e){status.setText("Allow Nearby Devices permission");}
+ }
  void loadDevices(){
    try{
      paired.clear();ArrayList<String> names=new ArrayList<>();
-     for(BluetoothDevice d:adapter.getBondedDevices()){paired.add(d);names.add((d.getName()==null?"Bluetooth device":d.getName())+" ("+d.getAddress()+")");}
+     for(BluetoothDevice d:adapter.getBondedDevices()){
+      paired.add(d);names.add((d.getName()==null?"Bluetooth device":d.getName())+" ("+d.getAddress()+")");
+     }
+     for(BluetoothDevice d:discovered){
+      boolean exists=false;for(BluetoothDevice old:paired)if(old.getAddress().equals(d.getAddress()))exists=true;
+      if(!exists){paired.add(d);names.add((d.getName()==null?"New Bluetooth device":d.getName())+" ("+d.getAddress()+") — TAP CONNECT TO PAIR");}
+     }
      if(names.isEmpty())names.add("Pair HC-05 / HC-06 in Settings");
      ArrayAdapter<String> da=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,names){
       @Override public android.view.View getView(int position,android.view.View convertView,android.view.ViewGroup parent){
@@ -250,7 +303,15 @@ void ui(){
      requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT},200);return;
    }
    int i=devices.getSelectedItemPosition();if(i<0||i>=paired.size()){status.setText("Pair HC-05 / HC-06 first");return;}
-   BluetoothDevice d=paired.get(i);status.setText("●  Connecting...");
+   BluetoothDevice d=paired.get(i);
+   if(d.getBondState()!=BluetoothDevice.BOND_BONDED){
+    try{if(adapter.isDiscovering())adapter.cancelDiscovery();
+     if(d.createBond())status.setText("●  Pairing — accept phone pairing request, then CONNECT");
+     else status.setText("Pairing failed — try again");
+    }catch(SecurityException e){status.setText("Allow Nearby Devices permission");}
+    return;
+   }
+   status.setText("●  Connecting...");
    new Thread(()->{
      BluetoothSocket s=null;
      try{s=d.createRfcommSocketToServiceRecord(SPP);adapter.cancelDiscovery();s.connect();
@@ -273,6 +334,8 @@ void ui(){
  @Override public void onRequestPermissionsResult(int code,String[] perms,int[] results){
    super.onRequestPermissionsResult(code,perms,results);
    if(code==200){if(results.length>0&&results[0]==PackageManager.PERMISSION_GRANTED)loadDevices();else status.setText("Bluetooth permission required");}
+   if(code==201){boolean ok=true;for(int result:results)if(result!=PackageManager.PERMISSION_GRANTED)ok=false;
+    if(ok)scanDevices();else status.setText("Bluetooth scan permission required");}
  }
- @Override public void onDestroy(){try{if(socket!=null)socket.close();}catch(Exception ignored){}super.onDestroy();}
+ @Override public void onDestroy(){if(receiverRegistered){try{unregisterReceiver(discoveryReceiver);}catch(Exception ignored){}}try{if(adapter!=null&&adapter.isDiscovering())adapter.cancelDiscovery();}catch(Exception ignored){}try{if(socket!=null)socket.close();}catch(Exception ignored){}super.onDestroy();}
 }
