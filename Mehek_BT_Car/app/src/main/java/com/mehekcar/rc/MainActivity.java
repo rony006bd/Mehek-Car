@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
     android.graphics.Rect b=getBounds();float w=b.width(),h=b.height();
     canvas.save();canvas.translate(b.left,b.top);
     p.setShader(new android.graphics.LinearGradient(0,0,w,h,header?themeColor(0xff0b322b):themeColor(CREAM),
-       header?themeColor(0xff577f49):themeColor(0xffeee4cd),android.graphics.Shader.TileMode.CLAMP));
+       header?themeColor(0xff577f49):themeColor(CREAM),android.graphics.Shader.TileMode.CLAMP));
     canvas.drawRoundRect(0,0,w,h,dp(header?14:0),dp(header?14:0),p);p.setShader(null);
     if(header){
      canvas.save();android.graphics.Path clip=new android.graphics.Path();
@@ -139,36 +139,40 @@ void ui(){
   LinearLayout root=col();root.setPadding(dp(8),dp(7),dp(8),dp(7));root.setBackground(artwork(false));
   root.setGravity(Gravity.CENTER_VERTICAL);
   android.widget.ScrollView scroll=new android.widget.ScrollView(this);
-  scroll.setFillViewport(true);scroll.setClipToPadding(false);
-  scroll.setFitsSystemWindows(true);
-  root.setFitsSystemWindows(false);
-  scroll.addView(root,new android.widget.ScrollView.LayoutParams(-1,-1));
+  scroll.setFillViewport(true);
+  scroll.setClipToPadding(false);
+  scroll.setBackgroundColor(themeColor(CREAM));
+  scroll.addView(root,new android.widget.ScrollView.LayoutParams(-1,-2));
   setContentView(scroll);
+  getWindow().setStatusBarColor(0xff142d25);
+  getWindow().setNavigationBarColor(0xff142d25);
+  getWindow().getDecorView().setSystemUiVisibility(0);
   if(Build.VERSION.SDK_INT>=35){
-   getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{
+   scroll.setOnApplyWindowInsetsListener((v,insets)->{
     android.graphics.Insets safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()|android.view.WindowInsets.Type.displayCutout());
     scroll.setPadding(safe.left,safe.top,safe.right,safe.bottom);
     return insets;
    });
+   scroll.requestApplyInsets();
   }
   LinearLayout head=row();head.setPadding(dp(6),dp(5),dp(6),dp(5));head.setBackground(artwork(true));head.setElevation(dp(4));
   ImageView logo=new ImageView(this);logo.setImageResource(R.mipmap.ic_launcher);logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-  head.addView(logo,m(53,53,0));
+  head.addView(logo,m(50,50,0));
   LinearLayout brand=col();brand.setPadding(dp(5),0,0,0);
-  brand.addView(label("TEAM TARAR BARI",11,Color.WHITE,true));
+  brand.addView(label("TEAM TARAR BARI",10,Color.WHITE,true));
   brand.addView(label(APP_TITLE,11,0xfff4d177,true));
   brand.addView(label("— VOYAGER OF LIGHT —",8,Color.WHITE,false));
   head.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
-  Button change=btn("🎨 THEME",0xff263f1d,0xff203e22,0xfff4d177);change.setTextSize(9*scale);
-  change.setOnClickListener(v->selectTheme());head.addView(change,m(84,44,0));root.addView(head,m(-1,-2,1));
+  Button change=btn("🎨 THEME",0xff263f1d,0xff203e22,0xfff4d177);change.setTextSize(10*scale);
+  change.setOnClickListener(v->selectTheme());head.addView(change,m(84,45,0));root.addView(head,m(-1,82,2));
   LinearLayout connectCard=col();connectCard.setPadding(dp(6),dp(3),dp(6),dp(3));
   connectCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   LinearLayout statusRow=row();status=label("●  Disconnected",11,0xff263f1d,true);
   statusRow.addView(status,new LinearLayout.LayoutParams(0,-2,1));
   Button connect=btn("CONNECT",GREEN,0xff203e22,Color.WHITE);
-  connect.setTextSize(11*scale);connect.setMinHeight(0);connect.setMinimumHeight(0);connect.setPadding(dp(3),0,dp(3),0);connect.setOnClickListener(v->connect());statusRow.addView(connect,m(100,46,0));connectCard.addView(statusRow);
-  devices=new Spinner(this);devices.setBackground(bg(0xfff6f0e2,0xffe4d9bd,9,GOLD));
-  devices.setMinimumHeight(dp(44));connectCard.addView(devices,m(-1,44,0));root.addView(connectCard,m(-1,-2,3));
+  connect.setTextSize(12*scale);connect.setSingleLine(true);connect.setMinHeight(0);connect.setMinimumHeight(0);connect.setPadding(dp(3),0,dp(3),0);connect.setOnClickListener(v->connect());statusRow.addView(connect,m(112,48,0));connectCard.addView(statusRow);
+  devices=new Spinner(this);devices.setBackground(bg(0xfff6f0e2,0xffe4d9bd,9,GOLD));devices.setPopupBackgroundDrawable(bg(CREAM,CREAM,8,GOLD));
+  devices.setMinimumHeight(dp(48));connectCard.addView(devices,m(-1,44,0));root.addView(connectCard,m(-1,-2,3));
   LinearLayout speedCard=col();speedCard.setPadding(dp(7),dp(2),dp(7),dp(2));
   speedCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   speedLabel=label("◉  SPEED LEVEL  8",12,0xff263f1d,true);
@@ -203,7 +207,7 @@ void ui(){
   TextView hint=label("ⓘ  Pair HC-05 / HC-06 in Android Bluetooth settings first.\\n     Press STOP before disconnecting.",9,0xff263f1d,false);
   tip.addView(hint);root.addView(tip,m(-1,-2,3));
   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",9,0xff75451d,false);
-  footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,18,1));
+  footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,28,4));
  }
  void loadDevices(){
    try{
@@ -213,12 +217,12 @@ void ui(){
      ArrayAdapter<String> da=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,names){
       @Override public android.view.View getView(int position,android.view.View convertView,android.view.ViewGroup parent){
        TextView t=(TextView)super.getView(position,convertView,parent);
-       t.setTextColor(0xff233b29);t.setTextSize(13);t.setSingleLine(true);t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+       t.setTextColor(0xff142d25);t.setTextSize(14);t.setSingleLine(true);t.setEllipsize(android.text.TextUtils.TruncateAt.END);
        t.setPadding(dp(12),dp(6),dp(8),dp(6));return t;
       }
       @Override public android.view.View getDropDownView(int position,android.view.View convertView,android.view.ViewGroup parent){
        TextView t=(TextView)super.getDropDownView(position,convertView,parent);
-       t.setTextColor(0xff233b29);t.setBackgroundColor(0xfff7efdc);t.setPadding(dp(12),dp(12),dp(8),dp(12));return t;
+       t.setTextColor(0xff142d25);t.setTextSize(14);t.setBackgroundColor(0xfff7efdc);t.setPadding(dp(12),dp(12),dp(8),dp(12));return t;
       }
      };
      da.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);devices.setAdapter(da);
