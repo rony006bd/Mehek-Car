@@ -77,10 +77,11 @@ public class MainActivity extends Activity {
    Button v=new Button(this);v.setAllCaps(false);v.setText(s);v.setTextColor((txt==Color.WHITE)?Color.WHITE:themeColor(txt));
    v.setTextSize(12*scale);v.setIncludeFontPadding(false);
    v.setMinHeight(0);v.setMinimumHeight(0);v.setPadding(dp(3),dp(3),dp(3),dp(3));v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
-   v.setBackground(bg(a,b,12,GOLD));v.setElevation(dp(5));return v;
+   v.setBackground(bg(a,b,18,GOLD));v.setElevation(dp(6));return v;
  }
  Button move(String name,String cmd,int color){
    Button v=btn(name,color,color==GREEN?0xff203e22:color==BROWN?0xff5d3213:0xff8e1715,Color.WHITE);
+   if(cmd.equals("S")){GradientDrawable stopCircle=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{themeColor(RED),0xff770c0b});stopCircle.setShape(GradientDrawable.OVAL);stopCircle.setStroke(dp(3),themeColor(GOLD));v.setBackground(stopCircle);}
    v.setOnTouchListener((view,event)->{
      if(event.getAction()==MotionEvent.ACTION_DOWN){v.setAlpha(.75f);send(cmd);return true;}
      if(event.getAction()==MotionEvent.ACTION_UP||event.getAction()==MotionEvent.ACTION_CANCEL){
@@ -99,27 +100,43 @@ public class MainActivity extends Activity {
    @Override public void draw(android.graphics.Canvas canvas){
     android.graphics.Rect b=getBounds();float w=b.width(),h=b.height();
     canvas.save();canvas.translate(b.left,b.top);
-    p.setShader(new android.graphics.LinearGradient(0,0,w,h,header?themeColor(0xff0b322b):themeColor(CREAM),
-       header?themeColor(0xff577f49):themeColor(CREAM),android.graphics.Shader.TileMode.CLAMP));
+    p.setShader(new android.graphics.LinearGradient(0,0,w,h,header?0xff061f1b:themeColor(CREAM),
+       header?themeColor(GREEN):themeColor(CREAM),android.graphics.Shader.TileMode.CLAMP));
     canvas.drawRoundRect(0,0,w,h,dp(header?14:0),dp(header?14:0),p);p.setShader(null);
     if(header){
      canvas.save();android.graphics.Path clip=new android.graphics.Path();
      clip.addRoundRect(0,0,w,h,dp(14),dp(14),android.graphics.Path.Direction.CW);canvas.clipPath(clip);
-     p.setColor(0x99ffe2a1);canvas.drawCircle(w*.79f,h*.26f,h*.29f,p);
+     p.setColor(0xffffdf83);canvas.drawCircle(w*.79f,h*.24f,h*.24f,p);
      polygon(canvas,0x7750784c,0,h*.73f,w*.18f,h*.28f,w*.35f,h*.75f,w*.55f,h*.26f,w*.79f,h*.78f,w,h*.35f,w,h);
      polygon(canvas,0xaa1d553e,0,h*.88f,w*.2f,h*.54f,w*.36f,h*.9f,w*.61f,h*.5f,w*.86f,h*.94f,w,h*.62f,w,h);
      polygon(canvas,0xdd0e392a,0,h*.9f,w*.23f,h*.78f,w*.5f,h*.93f,w*.72f,h*.7f,w,h*.9f,w,h,0,h);
-     // Silhouetted trees and distant rover, placed behind the title.
-     for(int i=0;i<5;i++){
-      float x=w*(.60f+i*.095f);float y=h*(.63f+(i%2)*.12f);
-      p.setColor(0xbb0a3024);p.setStrokeWidth(dp(2));canvas.drawLine(x,y,x,h,p);
-      polygon(canvas,0xcc123f2b,x-dp(9),y+dp(3),x,y-dp(20),x+dp(9),y+dp(3));
-      polygon(canvas,0xdd0d3827,x-dp(12),y+dp(10),x,y-dp(12),x+dp(12),y+dp(10));
+     // Detailed illustrated expedition rover on the lower right of the banner.
+     for(int i=0;i<8;i++){
+      float x=w*(.05f+i*.135f);float y=h*(.68f+(i%3)*.06f);
+      p.setColor(0xff092b20);p.setStrokeWidth(dp(2));canvas.drawLine(x,y,x,h,p);
+      polygon(canvas,0xff0c3a29,x-dp(13),y+dp(7),x,y-dp(25),x+dp(13),y+dp(7));
+      polygon(canvas,0xff092f23,x-dp(17),y+dp(16),x,y-dp(16),x+dp(17),y+dp(16));
      }
-     p.setColor(0xff182c22);canvas.drawRoundRect(w*.76f,h*.71f,w*.90f,h*.83f,dp(3),dp(3),p);
-     canvas.drawCircle(w*.79f,h*.86f,dp(5),p);canvas.drawCircle(w*.87f,h*.86f,dp(5),p);
-     p.setColor(0xffedcf77);canvas.drawCircle(w*.79f,h*.86f,dp(2),p);canvas.drawCircle(w*.87f,h*.86f,dp(2),p);
-     p.setColor(0x44f6d99c);canvas.drawRect(0,h*.91f,w,h,p);
+     float rx=w*.66f,ry=h*.64f,rw=w*.25f,rh=h*.25f;
+     // Four large rubber tires with golden hub details.
+     for(int i=0;i<4;i++){
+      float wx=rx+rw*(.12f+i*.25f),wy=ry+rh*.96f;
+      p.setColor(0xff071411);canvas.drawCircle(wx,wy,dp(10),p);
+      p.setColor(0xffbe9844);canvas.drawCircle(wx,wy,dp(6),p);
+      p.setColor(0xff263e31);canvas.drawCircle(wx,wy,dp(3),p);
+     }
+     p.setColor(0xff182d22);canvas.drawRoundRect(rx,ry,rx+rw,ry+rh*.75f,dp(6),dp(6),p);
+     p.setColor(0xffad8541);p.setStyle(android.graphics.Paint.Style.STROKE);p.setStrokeWidth(dp(2));
+     canvas.drawRoundRect(rx,ry,rx+rw,ry+rh*.75f,dp(6),dp(6),p);p.setStyle(android.graphics.Paint.Style.FILL);
+     // Rover cabin, windshield, roof lights and antenna.
+     p.setColor(0xff304c37);canvas.drawRoundRect(rx+rw*.31f,ry-rh*.56f,rx+rw*.75f,ry+rh*.05f,dp(4),dp(4),p);
+     p.setColor(0xff9ed8bd);canvas.drawRoundRect(rx+rw*.38f,ry-rh*.45f,rx+rw*.68f,ry-rh*.12f,dp(2),dp(2),p);
+     p.setColor(0xffe9c36a);canvas.drawRect(rx+rw*.29f,ry-rh*.62f,rx+rw*.78f,ry-rh*.53f,p);
+     p.setStrokeWidth(dp(2));canvas.drawLine(rx+rw*.79f,ry-rh*.55f,rx+rw*.82f,ry-rh*.92f,p);
+     canvas.drawCircle(rx+rw*.82f,ry-rh*.94f,dp(3),p);
+     p.setColor(0xffffdf7b);canvas.drawCircle(rx+rw*.08f,ry+rh*.3f,dp(5),p);
+     canvas.drawCircle(rx+rw*.93f,ry+rh*.3f,dp(5),p);
+     p.setColor(0x66f6d99c);canvas.drawRect(0,h*.94f,w,h,p);
      canvas.restore();
      p.setColor(themeColor(GOLD));p.setStyle(android.graphics.Paint.Style.STROKE);
      p.setStrokeWidth(dp(1.5f));canvas.drawRoundRect(dp(1),dp(1),w-dp(1),h-dp(1),dp(13),dp(13),p);
@@ -140,7 +157,7 @@ public class MainActivity extends Activity {
  }
 void ui(){
   LinearLayout root=col();root.setPadding(dp(8),dp(7),dp(8),dp(7));root.setBackground(artwork(false));
-  root.setGravity(Gravity.CENTER_VERTICAL);
+  root.setGravity(Gravity.TOP);
   android.widget.ScrollView scroll=new android.widget.ScrollView(this);
   scroll.setFillViewport(true);
   scroll.setClipToPadding(false);
@@ -183,7 +200,7 @@ void ui(){
   circle.setShape(android.graphics.drawable.GradientDrawable.OVAL);
   circle.setColor(themeColor(GREEN));circle.setStroke(dp(2),themeColor(GOLD));
   change.setBackground(circle);
-  change.setOnClickListener(v->selectTheme());head.addView(change,m(45,45,2));root.addView(head,m(-1,82,2));
+  change.setOnClickListener(v->selectTheme());head.addView(change,m(43,43,2));root.addView(head,m(-1,128,2));
   LinearLayout connectCard=col();connectCard.setPadding(dp(6),dp(3),dp(6),dp(3));
   connectCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   LinearLayout statusRow=row();status=label("●  Disconnected",11,0xff263f1d,true);
@@ -228,7 +245,7 @@ void ui(){
   disconnect.setOnClickListener(v->disconnect());root.addView(disconnect,m(-1,39,2));
   LinearLayout tip=row();tip.setPadding(dp(6),dp(3),dp(6),dp(3));
   tip.setBackground(bg(0xfff6f0e2,0xffe4d9bd,8,GOLD));
-  TextView hint=label("ⓘ  Pair HC-05 / HC-06 in Android Bluetooth settings first.\\n     Press STOP before disconnecting.",9,0xff263f1d,false);
+  TextView hint=label("ⓘ  Tap SCAN to find a new HC-05 / HC-06.\\n     Press STOP before disconnecting.",9,0xff263f1d,false);
   tip.addView(hint);root.addView(tip,m(-1,-2,3));
   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",9,0xff75451d,false);
   footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,28,4));
