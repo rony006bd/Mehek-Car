@@ -87,46 +87,66 @@ public class MainActivity extends Activity {
  android.graphics.drawable.Drawable artwork(final boolean header){
   return new android.graphics.drawable.Drawable(){
    final android.graphics.Paint p=new android.graphics.Paint(3);
-   @Override public void draw(android.graphics.Canvas c){
-    android.graphics.Rect r=getBounds();float w=r.width(),h=r.height();
-    p.setShader(new android.graphics.LinearGradient(0,0,w,h,header?themeColor(0xff263f1d):themeColor(CREAM),header?themeColor(0xff61703c):themeColor(0xffe6dbbe),android.graphics.Shader.TileMode.CLAMP));
-    c.drawRoundRect(0,0,w,h,dp(header?14:0),dp(header?14:0),p);p.setShader(null);
-    p.setStyle(android.graphics.Paint.Style.STROKE);p.setStrokeWidth(dp(1));
-    p.setColor(header?0x5596b56e:0x22a28d60);
-    for(int i=0;i<9;i++){
-     float x=w*(i+1)/10f;
-     android.graphics.Path path=new android.graphics.Path();path.moveTo(x,0);
-     path.cubicTo(x-dp(24),h*.3f,x+dp(20),h*.7f,x-dp(10),h);
-     c.drawPath(path,p);
-    }
-    p.setStyle(android.graphics.Paint.Style.FILL);
+   void polygon(android.graphics.Canvas c,int color,float... xy){
+    p.setColor(color);p.setStyle(android.graphics.Paint.Style.FILL);
+    android.graphics.Path q=new android.graphics.Path();q.moveTo(xy[0],xy[1]);
+    for(int i=2;i<xy.length;i+=2)q.lineTo(xy[i],xy[i+1]);q.close();c.drawPath(q,p);
+   }
+   @Override public void draw(android.graphics.Canvas canvas){
+    android.graphics.Rect b=getBounds();float w=b.width(),h=b.height();
+    canvas.save();canvas.translate(b.left,b.top);
+    p.setShader(new android.graphics.LinearGradient(0,0,w,h,header?themeColor(0xff0b322b):themeColor(CREAM),
+       header?themeColor(0xff577f49):themeColor(0xffeee4cd),android.graphics.Shader.TileMode.CLAMP));
+    canvas.drawRoundRect(0,0,w,h,dp(header?14:0),dp(header?14:0),p);p.setShader(null);
     if(header){
-     p.setColor(0x664b7b38);c.drawCircle(w*.76f,h*.64f,dp(29),p);
-     p.setColor(0x557fa34a);c.drawCircle(w*.88f,h*.37f,dp(20),p);
-     p.setColor(0x998a9e4b);c.drawRect(w*.65f,h*.78f,w*.97f,h*.83f,p);
-     for(int i=0;i<5;i++)c.drawCircle(w*(.69f+i*.06f),h*.85f,dp(3),p);
+     canvas.save();android.graphics.Path clip=new android.graphics.Path();
+     clip.addRoundRect(0,0,w,h,dp(14),dp(14),android.graphics.Path.Direction.CW);canvas.clipPath(clip);
+     p.setColor(0x99ffe2a1);canvas.drawCircle(w*.79f,h*.26f,h*.29f,p);
+     polygon(canvas,0x7750784c,0,h*.73f,w*.18f,h*.28f,w*.35f,h*.75f,w*.55f,h*.26f,w*.79f,h*.78f,w,h*.35f,w,h);
+     polygon(canvas,0xaa1d553e,0,h*.88f,w*.2f,h*.54f,w*.36f,h*.9f,w*.61f,h*.5f,w*.86f,h*.94f,w,h*.62f,w,h);
+     polygon(canvas,0xdd0e392a,0,h*.9f,w*.23f,h*.78f,w*.5f,h*.93f,w*.72f,h*.7f,w,h*.9f,w,h,0,h);
+     // Silhouetted trees and distant rover, placed behind the title.
+     for(int i=0;i<5;i++){
+      float x=w*(.60f+i*.095f);float y=h*(.63f+(i%2)*.12f);
+      p.setColor(0xbb0a3024);p.setStrokeWidth(dp(2));canvas.drawLine(x,y,x,h,p);
+      polygon(canvas,0xcc123f2b,x-dp(9),y+dp(3),x,y-dp(20),x+dp(9),y+dp(3));
+      polygon(canvas,0xdd0d3827,x-dp(12),y+dp(10),x,y-dp(12),x+dp(12),y+dp(10));
+     }
+     p.setColor(0xff182c22);canvas.drawRoundRect(w*.76f,h*.71f,w*.90f,h*.83f,dp(3),dp(3),p);
+     canvas.drawCircle(w*.79f,h*.86f,dp(5),p);canvas.drawCircle(w*.87f,h*.86f,dp(5),p);
+     p.setColor(0xffedcf77);canvas.drawCircle(w*.79f,h*.86f,dp(2),p);canvas.drawCircle(w*.87f,h*.86f,dp(2),p);
+     p.setColor(0x44f6d99c);canvas.drawRect(0,h*.91f,w,h,p);
+     canvas.restore();
      p.setColor(themeColor(GOLD));p.setStyle(android.graphics.Paint.Style.STROKE);
-     p.setStrokeWidth(dp(1.4f));c.drawRoundRect(dp(1),dp(1),w-dp(1),h-dp(1),dp(13),dp(13),p);p.setStyle(android.graphics.Paint.Style.FILL);
+     p.setStrokeWidth(dp(1.5f));canvas.drawRoundRect(dp(1),dp(1),w-dp(1),h-dp(1),dp(13),dp(13),p);
+     p.setStyle(android.graphics.Paint.Style.FILL);
+    }else{
+     p.setColor(0x16b59b62);p.setStrokeWidth(dp(1));p.setStyle(android.graphics.Paint.Style.STROKE);
+     for(int i=0;i<10;i++){float x=w*(i+.5f)/10f;
+      android.graphics.Path q=new android.graphics.Path();q.moveTo(x,0);
+      q.cubicTo(x-dp(14),h*.3f,x+dp(14),h*.7f,x-dp(6),h);canvas.drawPath(q,p);
+     }p.setStyle(android.graphics.Paint.Style.FILL);
     }
+    canvas.restore();
    }
    @Override public void setAlpha(int a){}
    @Override public void setColorFilter(android.graphics.ColorFilter f){}
    @Override public int getOpacity(){return android.graphics.PixelFormat.TRANSLUCENT;}
   };
  }
- void ui(){
+void ui(){
   LinearLayout root=col();root.setPadding(dp(8),dp(7),dp(8),dp(7));root.setBackground(artwork(false));
-  root.setGravity(Gravity.CENTER_VERTICAL);setContentView(root);
+  root.setGravity(Gravity.TOP);setContentView(root);
   LinearLayout head=row();head.setPadding(dp(6),dp(5),dp(6),dp(5));head.setBackground(artwork(true));head.setElevation(dp(4));
   ImageView logo=new ImageView(this);logo.setImageResource(R.mipmap.ic_launcher);logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-  head.addView(logo,m(49,49,0));
+  head.addView(logo,m(55,55,0));
   LinearLayout brand=col();brand.setPadding(dp(5),0,0,0);
   brand.addView(label("TEAM TARAR BARI",12,Color.WHITE,true));
   brand.addView(label(APP_TITLE,12,0xfff4d177,true));
   brand.addView(label("— VOYAGER OF LIGHT —",8,Color.WHITE,false));
   head.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
   Button change=btn("🎨 THEME",0xff263f1d,0xff203e22,0xfff4d177);change.setTextSize(9*scale);
-  change.setOnClickListener(v->selectTheme());head.addView(change,m(77,34,0));root.addView(head,m(-1,-2,1));
+  change.setOnClickListener(v->selectTheme());head.addView(change,m(80,36,0));root.addView(head,m(-1,-2,1));
   LinearLayout connectCard=col();connectCard.setPadding(dp(6),dp(3),dp(6),dp(3));
   connectCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   LinearLayout statusRow=row();status=label("●  Disconnected",11,0xff263f1d,true);
