@@ -72,7 +72,8 @@ public class MainActivity extends Activity {
  }
  Button btn(String s,int a,int b,int txt){
    Button v=new Button(this);v.setAllCaps(false);v.setText(s);v.setTextColor((txt==Color.WHITE)?Color.WHITE:themeColor(txt));
-   v.setTextSize(12*scale);v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
+   v.setTextSize(12*scale);v.setIncludeFontPadding(false);
+   v.setMinHeight(0);v.setMinimumHeight(0);v.setPadding(dp(3),dp(3),dp(3),dp(3));v.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
    v.setBackground(bg(a,b,12,GOLD));v.setElevation(dp(5));return v;
  }
  Button move(String name,String cmd,int color){
@@ -136,25 +137,38 @@ public class MainActivity extends Activity {
  }
 void ui(){
   LinearLayout root=col();root.setPadding(dp(8),dp(7),dp(8),dp(7));root.setBackground(artwork(false));
-  root.setGravity(Gravity.TOP);setContentView(root);
+  root.setGravity(Gravity.CENTER_VERTICAL);
+  android.widget.ScrollView scroll=new android.widget.ScrollView(this);
+  scroll.setFillViewport(true);scroll.setClipToPadding(false);
+  scroll.setFitsSystemWindows(true);
+  root.setFitsSystemWindows(false);
+  scroll.addView(root,new android.widget.ScrollView.LayoutParams(-1,-1));
+  setContentView(scroll);
+  if(Build.VERSION.SDK_INT>=35){
+   getWindow().getDecorView().setOnApplyWindowInsetsListener((v,insets)->{
+    android.graphics.Insets safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()|android.view.WindowInsets.Type.displayCutout());
+    scroll.setPadding(safe.left,safe.top,safe.right,safe.bottom);
+    return insets;
+   });
+  }
   LinearLayout head=row();head.setPadding(dp(6),dp(5),dp(6),dp(5));head.setBackground(artwork(true));head.setElevation(dp(4));
   ImageView logo=new ImageView(this);logo.setImageResource(R.mipmap.ic_launcher);logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-  head.addView(logo,m(55,55,0));
+  head.addView(logo,m(53,53,0));
   LinearLayout brand=col();brand.setPadding(dp(5),0,0,0);
-  brand.addView(label("TEAM TARAR BARI",12,Color.WHITE,true));
-  brand.addView(label(APP_TITLE,12,0xfff4d177,true));
+  brand.addView(label("TEAM TARAR BARI",11,Color.WHITE,true));
+  brand.addView(label(APP_TITLE,11,0xfff4d177,true));
   brand.addView(label("— VOYAGER OF LIGHT —",8,Color.WHITE,false));
   head.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
   Button change=btn("🎨 THEME",0xff263f1d,0xff203e22,0xfff4d177);change.setTextSize(9*scale);
-  change.setOnClickListener(v->selectTheme());head.addView(change,m(80,36,0));root.addView(head,m(-1,-2,1));
+  change.setOnClickListener(v->selectTheme());head.addView(change,m(84,44,0));root.addView(head,m(-1,-2,1));
   LinearLayout connectCard=col();connectCard.setPadding(dp(6),dp(3),dp(6),dp(3));
   connectCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   LinearLayout statusRow=row();status=label("●  Disconnected",11,0xff263f1d,true);
   statusRow.addView(status,new LinearLayout.LayoutParams(0,-2,1));
   Button connect=btn("CONNECT",GREEN,0xff203e22,Color.WHITE);
-  connect.setOnClickListener(v->connect());statusRow.addView(connect,m(91,30,0));connectCard.addView(statusRow);
+  connect.setTextSize(11*scale);connect.setMinHeight(0);connect.setMinimumHeight(0);connect.setPadding(dp(3),0,dp(3),0);connect.setOnClickListener(v->connect());statusRow.addView(connect,m(100,46,0));connectCard.addView(statusRow);
   devices=new Spinner(this);devices.setBackground(bg(0xfff6f0e2,0xffe4d9bd,9,GOLD));
-  connectCard.addView(devices,m(-1,27,0));root.addView(connectCard,m(-1,-2,3));
+  devices.setMinimumHeight(dp(44));connectCard.addView(devices,m(-1,44,0));root.addView(connectCard,m(-1,-2,3));
   LinearLayout speedCard=col();speedCard.setPadding(dp(7),dp(2),dp(7),dp(2));
   speedCard.setBackground(bg(0xfff6f0e2,0xffe4d9bd,12,GOLD));
   speedLabel=label("◉  SPEED LEVEL  8",12,0xff263f1d,true);
@@ -196,7 +210,18 @@ void ui(){
      paired.clear();ArrayList<String> names=new ArrayList<>();
      for(BluetoothDevice d:adapter.getBondedDevices()){paired.add(d);names.add((d.getName()==null?"Bluetooth device":d.getName())+" ("+d.getAddress()+")");}
      if(names.isEmpty())names.add("Pair HC-05 / HC-06 in Settings");
-     devices.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,names));
+     ArrayAdapter<String> da=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,names){
+      @Override public android.view.View getView(int position,android.view.View convertView,android.view.ViewGroup parent){
+       TextView t=(TextView)super.getView(position,convertView,parent);
+       t.setTextColor(0xff233b29);t.setTextSize(13);t.setSingleLine(true);t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+       t.setPadding(dp(12),dp(6),dp(8),dp(6));return t;
+      }
+      @Override public android.view.View getDropDownView(int position,android.view.View convertView,android.view.ViewGroup parent){
+       TextView t=(TextView)super.getDropDownView(position,convertView,parent);
+       t.setTextColor(0xff233b29);t.setBackgroundColor(0xfff7efdc);t.setPadding(dp(12),dp(12),dp(8),dp(12));return t;
+      }
+     };
+     da.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);devices.setAdapter(da);
    }catch(SecurityException e){status.setText("Allow Nearby Devices permission");}
  }
  void connect(){
