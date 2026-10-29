@@ -175,6 +175,7 @@ public class MainActivity extends Activity {
  }
 void ui(){
   boolean wide=getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE;
+  if(wide)scale=.72f;
   LinearLayout root=col();root.setPadding(dp(8),dp(7),dp(8),dp(7));root.setBackground(artwork(false));
   root.setGravity(Gravity.TOP);
   android.widget.ScrollView scroll=new android.widget.ScrollView(this);
@@ -264,27 +265,31 @@ void ui(){
   disconnect.setOnClickListener(v->disconnect());root.addView(disconnect,m(-1,39,2));
   LinearLayout tip=row();tip.setPadding(dp(6),dp(3),dp(6),dp(3));
   tip.setBackground(bg(0xfff6f0e2,0xffe4d9bd,8,GOLD));
-  TextView hint=label("ⓘ  Tap SCAN to find a new HC-05 / HC-06.\\n     Press STOP before disconnecting.",9,0xff263f1d,false);
+  TextView hint=label("ⓘ  Tap SCAN to find a new HC-05 / HC-06.\n     Press STOP before disconnecting.",9,0xff263f1d,false);
   tip.addView(hint);root.addView(tip,m(-1,-2,3));
   TextView footer=label("© 2026 Team TararBari · Mustafizur Rahman Rony",9,0xff75451d,false);
   footer.setGravity(Gravity.CENTER);root.addView(footer,m(-1,28,4));
   if(wide){
    root.removeAllViews();
-   root.addView(head,m(-1,80,2));
+   root.setPadding(dp(3),dp(2),dp(3),dp(2));
+   head.setPadding(dp(5),0,dp(5),0);
+   root.addView(head,m(-1,52,1));
    LinearLayout columns=row();columns.setGravity(Gravity.TOP);
-   LinearLayout left=col(),right=col();
-   left.addView(pad,m(-1,-2,2));
-   left.addView(diagonals1,m(-1,-2,1));
-   left.addView(diagonals2,m(-1,-2,1));
-   right.addView(connectCard,m(-1,-2,2));
-   right.addView(speedCard,m(-1,-2,2));
-   right.addView(max,m(-1,37,2));
-   right.addView(disconnect,m(-1,39,2));
+   LinearLayout left=col(),center=col(),right=col();
+   // Central joystick / D-pad is always the main visual focus.
+   center.addView(pad,m(-1,-2,1));
+   center.addView(diagonals1,m(-1,-2,1));
+   center.addView(diagonals2,m(-1,-2,1));
+   left.addView(connectCard,m(-1,-2,2));
+   left.addView(speedCard,m(-1,-2,2));
+   right.addView(max,m(-1,40,2));
+   right.addView(disconnect,m(-1,40,2));
    right.addView(tip,m(-1,-2,2));
-   columns.addView(left,new LinearLayout.LayoutParams(0,-2,1.15f));
-   columns.addView(right,new LinearLayout.LayoutParams(0,-2,1f));
-   root.addView(columns,m(-1,-2,2));
-   root.addView(footer,m(-1,24,2));
+   columns.addView(left,new LinearLayout.LayoutParams(0,-2,1f));
+   columns.addView(center,new LinearLayout.LayoutParams(0,-2,1.65f));
+   columns.addView(right,new LinearLayout.LayoutParams(0,-2,.80f));
+   root.addView(columns,m(-1,-2,1));
+   root.addView(footer,m(-1,18,0));
   }
  }
  final BroadcastReceiver discoveryReceiver=new BroadcastReceiver(){
@@ -305,15 +310,19 @@ void ui(){
  void beginDiscovery(int attempt){
   if(isFinishing()||adapter==null)return;
   try{
-   if(adapter.isDiscovering()){
-    if(attempt<3){adapter.cancelDiscovery();status.setText("Preparing Bluetooth scan...");new Handler(Looper.getMainLooper()).postDelayed(()->beginDiscovery(attempt+1),700);return;}
-   }
+   if(adapter.isDiscovering()){status.setText("●  Bluetooth discovery already running...");return;}
    boolean started=adapter.startDiscovery();
    if(started){status.setText("●  Scanning nearby devices...");return;}
    if(attempt<3){
     status.setText("Retrying Bluetooth scan ("+(attempt+1)+"/3)...");
     new Handler(Looper.getMainLooper()).postDelayed(()->beginDiscovery(attempt+1),1100);
-   }else status.setText("Discovery blocked by phone. Select paired HC-05/HC-06 and press CONNECT.");
+   }else {
+    status.setText("Discovery unavailable; paired HC-06 can CONNECT directly.");
+    new android.app.AlertDialog.Builder(this).setTitle("Bluetooth scan unavailable")
+     .setMessage("Android did not start device discovery. Your already-paired HC-05/HC-06 can connect directly without scanning. To find new devices, pair them in phone Bluetooth settings, then return here.")
+     .setPositiveButton("Bluetooth settings",(d,w)->startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS)))
+     .setNegativeButton("Use paired device",null).show();
+   }
   }catch(SecurityException e){status.setText("Allow Nearby devices permission");}
    catch(Exception e){status.setText("Scan error. Pair HC-05 in phone Bluetooth Settings.");}
  }
