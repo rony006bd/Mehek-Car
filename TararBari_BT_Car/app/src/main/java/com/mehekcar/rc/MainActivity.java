@@ -175,7 +175,7 @@ public class MainActivity extends Activity {
  }
 void ui(){
   boolean wide=getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE;
-  if(wide)scale=.72f;
+  // Recalculate on every render; never retain the landscape scale in portrait.\n  float heightDp=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density;\n  scale=wide?Math.min(1.12f,Math.max(.80f,(heightDp-72f)/410f)):Math.min(1.10f,Math.max(.82f,(heightDp-80f)/740f));
   LinearLayout root=col();root.setPadding(dp(8),dp(7),dp(8),dp(7));root.setBackground(artwork(false));
   root.setGravity(Gravity.TOP);
   android.widget.ScrollView scroll=new android.widget.ScrollView(this);
@@ -273,7 +273,7 @@ void ui(){
    root.removeAllViews();
    root.setPadding(dp(3),dp(2),dp(3),dp(2));
    head.setPadding(dp(5),0,dp(5),0);
-   root.addView(head,m(-1,52,1));
+   root.addView(head,m(-1,dp(50)/dp(1),1));
    LinearLayout columns=row();columns.setGravity(Gravity.TOP);
    LinearLayout left=col(),center=col(),right=col();
    // Central joystick / D-pad is always the main visual focus.
